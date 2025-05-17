@@ -1,26 +1,32 @@
-name: Python Flask CI/CD
+name: Python Flask Application
 
 on: [push, pull_request]  # Запуск при push или PR
 
 jobs:
-  build-and-test:
+  build-and-run:
     runs-on: ubuntu-latest
     
     steps:
-      - uses: actions/checkout@v4  # Клонирование репозитория
+      # Шаг 1: Клонирование репозитория
+      - uses: actions/checkout@v4
 
+      # Шаг 2: Установка Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'  # Автовыбор последней Python 3
+          python-version: '3.10'  # Можно указать конкретную версию
 
+      # Шаг 3: Даем права на выполнение скрипта (аналог before_install)
+      - name: Make script executable
+        run: chmod +x ./flaskapp/st.sh
+
+      # Шаг 4: Установка зависимостей (аналог install)
       - name: Install dependencies
         run: |
-          pip install flask gunicorn
-          
-      - name: Make script executable
-        run: chmod +x ./flaskapp/st.sh  # Аналог before_install в Travis
+          pip install flask gunicorn requests
+          pip list  # Для отладки (опционально)
 
+      # Шаг 5: Запуск приложения (аналог script)
       - name: Run application
-        working-directory: ./flaskapp  # Аналог cd в Travis
-        run: ./st.sh  # Запуск скрипта
+        working-directory: ./flaskapp
+        run: ./st.sh
