@@ -27,6 +27,7 @@ jobs:
           pip install protobuf==3.20.1
           pip install flask gunicorn requests flask-bootstrap flask-wtf pillow
           pip install tensorflow==2.12.0 keras
+          pip install lxml
 
       # Шаг 5: Проверка установленных пакетов (для отладки)
       - name: Verify installations
