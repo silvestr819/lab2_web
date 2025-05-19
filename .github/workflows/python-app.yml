@@ -7,33 +7,31 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Шаг 1: Клонирование репозитория
       - uses: actions/checkout@v4
 
-      # Шаг 2: Установка Python
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/sup-python@v5
         with:
-          python-version: '3.8'  # TensorFlow 2.0 требует Python 3.5-3.8
+          python-version: '3.8'
 
-      # Шаг 3: Даем права на выполнение скрипта
       - name: Make script executable
         run: chmod +x ./flaskapp/st.sh
 
-      # Шаг 4: Установка зависимостей
-      - name: Install dependencies
+      - name: Install dependencies with correct versions
         run: |
           python -m pip install --upgrade pip
+          # Сначала устанавливаем совместимый protobuf
+          pip install "protobuf<3.20" --force-reinstall
+          # Затем TensorFlow и остальные зависимости
+          pip install tensorflow==2.10.0 keras==2.10.0
           pip install flask gunicorn requests flask-bootstrap flask-wtf pillow
-          pip install tensorflow==2.2.0 keras
           
-      # Шаг 5: Проверка установленных пакетов (для отладки)
       - name: Verify installations
         run: |
           pip list
-          python -c "import tensorflow as tf; print(tf.__version__)"
+          python -c "import tensorflow as tf; print('TF Version:', tf.__version__)"
+          python -c "import protobuf; print('Protobuf Version:', protobuf.__version__)"
 
-      # Шаг 6: Запуск приложения
       - name: Run application
         working-directory: ./flaskapp
         run: ./st.sh
