@@ -1,3 +1,5 @@
+#!/bin/bash
+export CUDA_VISIBLE_DEVICES="-1"  # Отключает GPU
 gunicorn --bind 127.0.0.1:5000 wsgi:app & APP_PID=$!
 sleep 5
 echo start client
