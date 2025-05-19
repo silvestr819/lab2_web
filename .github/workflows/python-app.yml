@@ -25,7 +25,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flask gunicorn requests flask-bootstrap flask-wtf pillow
-          pip install tensorflow==2.0.0-alpha0 keras
+          pip install tensorflow==2.2.0 keras
           
       # Шаг 5: Проверка установленных пакетов (для отладки)
       - name: Verify installations
