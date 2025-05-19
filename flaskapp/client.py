@@ -2,6 +2,7 @@
 import os
 from io import BytesIO
 import base64
+import sys
 import requests
 img_data = None
 # создаем путь к файлу (для кросс-платформенности, например)
@@ -24,3 +25,9 @@ try:
         exit(1)
     print(r.text)
 except: exit(1)
+try:
+    response = requests.get('http://127.0.0.1:5000/apinet', timeout=10)
+    response.raise_for_status()
+except Exception as e:
+    print(f"Client error: {str(e)}")
+    sys.exit(1)

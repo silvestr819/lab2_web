@@ -1,22 +1,38 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES="-1"  # Отключает GPU
+set -e  # Выход при ошибке
+set -o pipefail
 
-# Запускаем сервер на 0.0.0.0 (доступен и внутри контейнера, и извне)
-gunicorn --bind 0.0.0.0:5000 --access-logfile - --error-logfile - wsgi:app & APP_PID=$!
+export CUDA_VISIBLE_DEVICES="-1"
 
-# Даем серверу время на запуск
-sleep 10
+# Запускаем сервер в фоне с логированием
+gunicorn --bind 0.0.0.0:5000 --access-logfile gunicorn.log --error-logfile gunicorn.error.log wsgi:app & 
+SERVER_PID=$!
 
+# Функция для остановки сервера
+cleanup() {
+    echo "Stopping server (PID $SERVER_PID)..."
+    kill -TERM $SERVER_PID 2>/dev/null || true
+    wait $SERVER_PID 2>/dev/null || true
+    echo "Server stopped"
+}
+
+# Гарантированная остановка при выходе
+trap cleanup EXIT
+
+# Ждем готовности сервера (до 30 сек)
+for i in {1..30}; do
+    if curl -sSf http://127.0.0.1:5000/healthcheck >/dev/null 2>&1; then
+        echo "Server is ready!"
+        break
+    fi
+    sleep 1
+    echo "Waiting for server... ($i/30)"
+done
+
+# Запускаем клиент
 echo "Starting client..."
 python3 client.py
-APP_CODE=$?
+CLIENT_CODE=$?
 
-# Даем клиенту время завершить работу
-sleep 5
-
-echo "Stopping server (PID $APP_PID)..."
-kill -TERM $APP_PID
-wait $APP_PID
-
-echo "Client exit code: $APP_CODE"
-exit $APP_CODE
+# Выходим с кодом клиента
+exit $CLIENT_CODE
