@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.8'
 
-      # Шаг 3: Даем права на выполнение скрмтпта
+      # Шаг 3: Даем права на выполнение скрипта
       - name: Make script executable
         run: chmod +x ./flaskapp/st.sh
 
@@ -38,11 +38,5 @@ jobs:
       - name: Run application
         working-directory: ./flaskapp
         env:
-          TF_TENSORRT_DISABLED: 1
           PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION: python
         run: ./st.sh
-
-      # Шаг 7: Проверка логов Gunicorn (для отладки)
-      - name: Check Gunicorn logs
-        run: |
-          cat ./flaskapp/gunicorn.log
